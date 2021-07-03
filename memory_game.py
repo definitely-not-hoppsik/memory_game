@@ -1,3 +1,4 @@
+import time
 import pygame
 import sys
 import random
@@ -76,6 +77,7 @@ class Game:
         self.cards = pygame.sprite.Group()
         self.all_sprites = pygame.sprite.Group()
         self.turned_cards = pygame.sprite.Group()
+        self.guessed_cards = pygame.sprite.Group()
         self.cards_rows = 4
         self.cards_columns = 5
         self.board_x = 50
@@ -88,22 +90,24 @@ class Game:
     def show_hidden_after_click(self, mouse_sprite_location):
         for card in self.cards:
             if pygame.sprite.collide_rect(mouse_sprite_location, card):
-                print('h9')
-                print(card.get_current_color())
+                print('hi')
+                print()
                 card.show_color()
+                print(card)
                 self.turned_cards.add(card)
-                print(card.get_current_color())
+                self.cards.remove(card)
+                self.guessed_cards.add(card)
 
-        print(self.turned_cards)
+        if len(self.turned_cards) == 2:
+            turned_cards_colors = []
+            for turned_card in self.turned_cards:
+                turned_cards_colors.append(turned_card.get_hidden_color())
 
-        if len(self.turned_cards) > 2:
-            turned_card_colors = []
-            for card in self.turned_cards:
-                turned_card_colors.append(card.get_hidden_color)
-                # TODO
-
-            if turned_card_colors[0] == turned_card_colors[1]:
-                card.hide_color()
+            if turned_cards_colors[0] != turned_cards_colors[1]:
+                for turned_card in self.turned_cards:
+                    turned_card.hide_color()
+                    self.cards.add(turned_card)
+                    self.guessed_cards.remove(turned_card)
 
             self.turned_cards.empty()
 
@@ -112,17 +116,17 @@ class Game:
         list_of_colors += list_of_colors
         random.shuffle(list_of_colors)
 
-        # TODO
+        c = 0
         for i in range(0, self.cards_rows*2, 2):
             for j in range(0, self.cards_columns*2, 2):
                 card = Card(self.board_x + self.board_x*i,
                             self.board_y + self.board_y*j,
-                            list_of_colors[i+j])
+                            list_of_colors[c])
+                c += 1
                 self.cards.add(card)
 
     def make_sprites(self):
-        self.all_sprites.add(self.cards)
-        print(self.cards)
+        self.all_sprites.add(self.cards, self.guessed_cards)
 
     def draw_sprites(self):
         self.all_sprites.update()
